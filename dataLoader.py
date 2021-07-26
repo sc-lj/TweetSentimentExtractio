@@ -72,7 +72,7 @@ def collate_fn(batch):
 
     input_ids = torch.zeros((batch_size, max_length), dtype=torch.long)
     mask_ids = torch.zeros((batch_size, max_length))
-    span_labels = torch.zeros((batch_size, max_length), dtype=torch.long)
+    span_labels = torch.zeros((batch_size, max_length), dtype=torch.float)
     sent_labels = torch.zeros(batch_size, dtype=torch.long)
 
     for i in range(batch_size):

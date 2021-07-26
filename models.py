@@ -51,8 +51,7 @@ class SentSegModel(RobertaModel):
         span_gold_label = data['span_label']
 
         sent_loss = F.cross_entropy(sent_logit, sent_gold_label)
-        span_loss = F.binary_cross_entropy(
-            span_logits, span_gold_label, reduce="none")
+        span_loss = F.binary_cross_entropy(span_logits, span_gold_label, reduce="none")
         span_loss = torch.sum(span_loss*mask_ids) / torch.sum(mask_ids)
 
         return sent_loss+span_loss
@@ -70,5 +69,6 @@ class SentSegModel(RobertaModel):
         span_encode = text_encode + label_vector
         # [batch_size,seq_len,1]
         span_encode = self.span_linear(span_encode)
+        span_encode = span_encode.squeeze(-1)
         span_logit = torch.sigmoid(span_encode)
         return span_logit
