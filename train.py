@@ -34,12 +34,14 @@ def read_data(files):
     train_data = pd.read_csv(files)
     train_data = train_data.dropna()
     textes = train_data["text"].values
+    textes = [s.strip() for s in textes]
     spanes = train_data['selected_text'].values
+    spanes = [s.strip() for s in spanes]
     senti_label = train_data['sentiment'].values
     senti_label = [sentiment[i.strip()] for i in senti_label]
     span_label = []
     for text, span in zip(*(textes, spanes)):
-        start_index, end_index = get_span_index(text, span)
+        start_index, end_index = get_span_index(text.strip(), span.strip())
         span_label.append((start_index, end_index))
     return textes, senti_label, span_label
 

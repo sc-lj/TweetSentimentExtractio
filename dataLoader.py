@@ -54,7 +54,7 @@ class SentiSegDataLoader(Dataset):
         new_span_label = [0]*len(token_ids)
         for i in convert_span_label:
             new_span_label[i] = 1
-        return token_ids, new_span_label, len(token_ids), tokens, gold_token
+        return token_ids, new_span_label, len(token_ids), token_ids, gold_token
 
 
 def collate_fn(batch):
