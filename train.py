@@ -70,7 +70,7 @@ def test_predict(model, data):
     tokens = data['token']
     all_hidden_states = model.get_encoded_text(input_ids, mask_ids)
     senti_logit = model.get_sent_predict(all_hidden_states)
-    sent_label = senti_logit.cpu().numpy().argmax(-1).tolist()
+    sent_label = senti_logit.argmax(-1)
     span_logits = model.extract_span(sent_label, all_hidden_states)
     batch_size = span_logits.shape[0]
     batch_span_token = []
@@ -83,7 +83,7 @@ def test_predict(model, data):
             pred_token = token[span_index[0]:span_index[1]]
         out_string = " ".join(pred_token).replace(" ##", "").strip()
         batch_span_token.append(out_string)
-
+    sent_label = sent_label.cpu().numpy().tolist()
     return sent_label, batch_span_token
 
 
