@@ -2,3 +2,4 @@ data
 roberta_english
 .vscode
 models
+__pycache__
