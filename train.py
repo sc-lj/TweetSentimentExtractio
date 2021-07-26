@@ -119,8 +119,8 @@ def validation(val_dataloader, model, device):
             span_pred_result.extend(batch_span_indexes)
 
     sentiment_acc = accuracy_score(sent_target_result, sent_pred_result)
-    sentiment_recall = recall_score(sent_target_result, sent_pred_result)
-    sentiment_f1 = f1_score(sent_target_result, sent_pred_result)
+    sentiment_recall = recall_score(sent_target_result, sent_pred_result, average='micro')
+    sentiment_f1 = f1_score(sent_target_result, sent_pred_result, average='micro')
 
     span_correct = set(span_target_result) & set(span_pred_result)
     span_acc = span_correct/len(span_pred_result)
