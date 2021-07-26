@@ -43,7 +43,7 @@ def read_data(files):
     for text, span in zip(*(textes, spanes)):
         start_index, end_index = get_span_index(text.strip(), span.strip())
         span_label.append((start_index, end_index))
-    return textes, senti_label, span_label
+    return textes, senti_label, span_label,spanes
 
 
 def get_argparse():
@@ -136,15 +136,15 @@ def validation(val_dataloader, model, device):
 
 def train():
     args = get_argparse()
-    train_data, train_senti_label, train_span_label = read_data(
+    train_data, train_senti_label, train_span_label, train_gold_span = read_data(
         args.train_files)
-    val_data, val_senti_label, val_span_label = read_data(args.val_files)
+    val_data, val_senti_label, val_span_label, val_gold_span = read_data(args.val_files)
 
     tokenizer = RobertaTokenizer.from_pretrained(args.pretrain_path)
     train_dataset = SentiSegDataLoader(
-        train_data, train_senti_label, train_span_label, tokenizer)
+        train_data, train_senti_label, train_span_label, train_gold_span, tokenizer)
     val_dataset = SentiSegDataLoader(
-        val_data, val_senti_label, val_span_label, tokenizer)
+        val_data, val_senti_label, val_span_label, val_gold_span, tokenizer)
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
     val_dataloader = DataLoader(
         val_dataset, collate_fn=collate_fn, batch_size=args.batch_size)

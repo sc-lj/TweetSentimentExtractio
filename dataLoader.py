@@ -6,15 +6,18 @@ import torch
 
 
 class SentiSegDataLoader(Dataset):
-    def __init__(self, data, label, span_label, tokenizer: RobertaTokenizer):
+    def __init__(self, data, label, span_label, gold_span, tokenizer: RobertaTokenizer):
         super().__init__()
 
         self.data = data
         self.label = label
         self.span_label = span_label
+        self.gold_span = gold_span
         self.tokenizer = tokenizer
-        self.cls_special = tokenizer.cls_token_id
-        self.sep_special = tokenizer.sep_token_id
+        self.cls_special_id = tokenizer.cls_token_id
+        self.cls_special = tokenizer.cls_token
+        self.sep_special_id = tokenizer.sep_token_id
+        self.sep_special = tokenizer.sep_token
 
     def __len__(self):
         return len(self.data)
@@ -27,34 +30,35 @@ class SentiSegDataLoader(Dataset):
         return token_ids, convert_span_label, sent_label, length, tokens, gold_token
 
     def tokenizer_encode(self, text, span_label):
-        token_ids = [self.cls_special]
+        token_ids = [self.cls_special_id]
         convert_span_label = []
-        tokens = ["[CLS]"]
+        tokens = [self.cls_special]
 
         start_span_index, end_span_index = span_label
 
-        first_span_token_id = self.tokenizer.encode(text[:start_span_index])
-        tokens += self.tokenizer.convert_ids_to_tokens(first_span_token_id)
+        first_span_tokens = self.tokenizer.tokenize(text[:start_span_index])
+        first_span_token_id = self.tokenizer.convert_tokens_to_ids(first_span_tokens)
+        tokens += first_span_tokens
         token_ids += first_span_token_id
         convert_span_label.append(len(token_ids))
 
-        middle_span_token_id = self.tokenizer.encode(
-            text[start_span_index:end_span_index])
-        gold_token = self.tokenizer.convert_ids_to_tokens(middle_span_token_id)
-        tokens += gold_token
+        middle_span_token = self.tokenizer.tokenize(text[start_span_index:end_span_index])
+        middle_span_token_id = self.tokenizer.convert_tokens_to_ids(middle_span_token)
+        tokens += middle_span_token
         token_ids += middle_span_token_id
         convert_span_label.append(len(token_ids))
 
-        last_span_token_id = self.tokenizer.encode(text[end_span_index:])
-        tokens += self.tokenizer.convert_ids_to_tokens(last_span_token_id)
+        last_span_token = self.tokenizer.tokenize(text[end_span_index:])
+        last_span_token_id = self.tokenizer.convert_tokens_to_ids(last_span_token)
+        tokens += last_span_token
         token_ids += last_span_token_id
-        token_ids += [self.sep_special]
-        tokens += ["[SEP]"]
+        token_ids += [self.sep_special_id]
+        tokens += [self.sep_special]
 
         new_span_label = [0]*len(token_ids)
         for i in convert_span_label:
             new_span_label[i] = 1
-        return token_ids, new_span_label, len(token_ids), token_ids, gold_token
+        return token_ids, new_span_label, len(token_ids), tokens, middle_span_token
 
 
 def collate_fn(batch):
